@@ -8,23 +8,25 @@ import (
 
 func AuthMiddleWare() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token := c.GetHeader("Authorization")
-
-		if token == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization token required"})
+		username, password, ok := c.Request.BasicAuth()
+		if !ok {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization basic token required"})
 			c.Abort()
 			return
 		}
 
-		// this could be any heavy logic to validate the input you require
-		if token != "valid-token" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization token invalid"})
+		const (
+			validUser     = "superadmin"
+			validPassword = "supersecretpassword"
+		)
+		isValid := (username == validUser) && (password == validPassword)
+
+		if !isValid {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid authorization token"})
 			c.Abort()
 			return
-
 		}
 
 		c.Next()
-
 	}
 }

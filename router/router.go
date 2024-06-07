@@ -1,17 +1,21 @@
 package router
 
 import (
-	"github.com/caesar003/golang-praisindo-advanced/handler"
+	"github.com/caesar003/day-2-golang-praisindo-advanced-gin-crud/handler"
+	"github.com/caesar003/day-2-golang-praisindo-advanced-gin-crud/middleware"
 	"github.com/gin-gonic/gin"
 )
 
 func SetupRouter(r *gin.Engine) {
 	r.GET("/", handler.RootHandler)
-	r.POST("/", handler.PostHandler)
 
-	r.GET("/api/user", handler.RootHandler)
-	r.POST("/api/user", handler.RootHandler)
-	r.PUT("/api/user", handler.RootHandler)
-	r.DELETE("/api/user", handler.RootHandler)
+	userPublic := r.Group("/api/user")
+	userPublic.GET("/", handler.GetUsers)
+	userPublic.GET("/:id", handler.GetUser)
 
+	userPrivate := r.Group("/api/user")
+	userPrivate.Use(middleware.AuthMiddleWare())
+	userPrivate.POST("/", handler.AddUser)
+	userPrivate.PUT("/:id", handler.UpdateUser)
+	userPrivate.DELETE("/:id", handler.DeleteUser)
 }
