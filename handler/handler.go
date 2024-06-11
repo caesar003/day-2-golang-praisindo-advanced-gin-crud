@@ -10,9 +10,14 @@ import (
 )
 
 var (
-	users  []entity.User
-	nextID int
+	Users  []entity.User
+	NextID int
 )
+
+func Init() {
+	Users = []entity.User{}
+	NextID = 1
+}
 
 func RootHandler(c *gin.Context) {
 	c.JSON(200, gin.H{
@@ -21,7 +26,7 @@ func RootHandler(c *gin.Context) {
 }
 
 func GetUsers(c *gin.Context) {
-	c.JSON(200, users)
+	c.JSON(200, Users)
 }
 
 func GetUser(c *gin.Context) {
@@ -34,7 +39,7 @@ func GetUser(c *gin.Context) {
 
 	var user *entity.User
 
-	for _, u := range users {
+	for _, u := range Users {
 		if u.ID == id {
 			user = &u
 			break
@@ -47,7 +52,6 @@ func GetUser(c *gin.Context) {
 	}
 
 	c.JSON(200, user)
-
 }
 
 func AddUser(c *gin.Context) {
@@ -57,12 +61,12 @@ func AddUser(c *gin.Context) {
 		return
 	}
 
-	user.ID = nextID
-	nextID++
+	user.ID = NextID
+	NextID++
 	user.CreatedAt = time.Now()
 	user.UpdatedAt = time.Now()
 
-	users = append(users, user)
+	Users = append(Users, user)
 	c.JSON(http.StatusCreated, user)
 }
 
@@ -80,13 +84,13 @@ func UpdateUser(c *gin.Context) {
 	}
 
 	var user *entity.User
-	for i, u := range users {
+	for i, u := range Users {
 		if u.ID == id {
-			users[i].Name = updatedUser.Name
-			users[i].Password = updatedUser.Password
-			users[i].Email = updatedUser.Email
-			users[i].UpdatedAt = time.Now()
-			user = &users[i]
+			Users[i].Name = updatedUser.Name
+			Users[i].Password = updatedUser.Password
+			Users[i].Email = updatedUser.Email
+			Users[i].UpdatedAt = time.Now()
+			user = &Users[i]
 			break
 		}
 	}
@@ -108,7 +112,7 @@ func DeleteUser(c *gin.Context) {
 
 	var index int
 	var user *entity.User
-	for i, u := range users {
+	for i, u := range Users {
 		if u.ID == id {
 			user = &u
 			index = i
@@ -121,7 +125,7 @@ func DeleteUser(c *gin.Context) {
 		return
 	}
 
-	users = append(users[:index], users[index+1:]...)
+	Users = append(Users[:index], Users[index+1:]...)
 
 	c.JSON(200, gin.H{"message": "User deleted"})
 }
